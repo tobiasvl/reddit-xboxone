@@ -5,6 +5,8 @@ from datetime import datetime
 import urllib
 import praw
 import re
+from slackclient import SlackClient
+from slacker import Slacker
 
 ## ===== USAGE ====
 ## In the wiki page you want to include the services table put this in:
@@ -29,12 +31,14 @@ settings = {
     'user_agent': '/r/xboxone Service Checker (by /u/tobiasvl)',
     'compare_start': '[](#/ServiceChecker/start)',
     'compare_end': '[](#/ServiceChecker/end)',
+    'slack_token': '',
 }
 
 app = Flask(__name__)
 app.config['DEBUG'] = settings['debug']
 
 @app.route("/xbox/update-sidebar")
+@app.route("/update-sidebar")
 def parse():
     try:
         r = praw.Reddit(user_agent=settings['user_agent'], disable_update_check=True)
@@ -66,7 +70,28 @@ Social and Gaming | [""" + status['SocialandGaming'].title() + '](#/' + status['
 [**^(Status Page)**](""" + 'http://support.xbox.com/xbox-live-status' + ')\r\n\r\n'
             md = startMD + table + endMD
 
+            # edit subreddit sidebar
             r.edit_wiki_page(settings['subreddit'], settings['wiki_page'], md, settings['revision_message'])
+
+            # notify slack
+            sc = Slacker(settings['slack_token'])
+            # notice change
+            f = open('/home/spug/xboxone.thespug.net/tmp/last_status', 'r')
+            lines = [line.rstrip('\n') for line in f]
+            f.close()
+
+            for (line, service) in zip(lines, ('XboxLiveCoreServices', 'PurchaseandContentUsage', 'Website', 'TVMusicandVideo', 'SocialandGaming')):
+                f2 = open('/home/spug/xboxone.thespug.net/tmp/debug', 'a')
+                f2.write('{0}, {1}, {2}\n'.format(line, service, status[service]))
+                f2.close()
+                if line != status[service]:
+                   sc.chat.post_message('#announcements', '{0} changed status from {1} to {2}'.format(service, line, status[service]), as_user=True)
+
+            f = open('/home/spug/xboxone.thespug.net/tmp/last_status', 'w')
+            for service in ('XboxLiveCoreServices', 'PurchaseandContentUsage', 'Website', 'TVMusicandVideo', 'SocialandGaming'):
+                f.write(status[service] + '\n')
+
+            f.close()
 
             return 'Success', 200
         else:
