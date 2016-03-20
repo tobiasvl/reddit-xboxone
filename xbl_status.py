@@ -131,3 +131,6 @@ def getHTMLSoup():
     htmlSource = htmlDownloader.read()
     htmlDownloader.close()
     return BeautifulSoup(htmlSource)
+
+if __name__ == '__main__':
+    app.run()
