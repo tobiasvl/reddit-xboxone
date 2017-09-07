@@ -62,7 +62,6 @@ Service | Status
 ---|---
 Xbox Live Core Services | [""" + status['XboxLiveCoreServices'].title() + '](#/' + status['XboxLiveCoreServices'] + ' "' + status['XboxLiveCoreServices'].title() + """")
 Purchase and Content Usage | [""" + status['PurchaseandContentUsage'].title() + '](#/' + status['PurchaseandContentUsage'] + ' "' + status['PurchaseandContentUsage'].title() + """")
-Website | [""" + status['Website'].title() + '](#/' + status['Website'] + ' "' + status['Website'].title() +"""")
 TV, Music and Video | [""" + status['TVMusicandVideo'].title() + '](#/' + status['TVMusicandVideo'] + ' "' + status['TVMusicandVideo'].title() + """")
 Social and Gaming | [""" + status['SocialandGaming'].title() + '](#/' + status['SocialandGaming'] + ' "' + status['SocialandGaming'].title() + """")
 \r\n\r\n
@@ -80,22 +79,22 @@ Social and Gaming | [""" + status['SocialandGaming'].title() + '](#/' + status['
             lines = [line.rstrip('\n') for line in f]
             f.close()
 
-            for (line, service) in zip(lines, ('XboxLiveCoreServices', 'PurchaseandContentUsage', 'Website', 'TVMusicandVideo', 'SocialandGaming')):
+            for (line, service) in zip(lines, ('XboxLiveCoreServices', 'PurchaseandContentUsage', 'TVMusicandVideo', 'SocialandGaming')):
                 f2 = open('/home/spug/xboxone.thespug.net/tmp/debug', 'a')
                 f2.write('{0}, {1}, {2}\n'.format(line, service, status[service]))
                 f2.close()
                 if line != status[service]:
-                   sc.chat.post_message('#announcements', '{0} changed status from {1} to {2}'.format(service, line, status[service]), as_user=True)
+                   sc.chat.post_message('#xbox_live_status', '{0} changed status from {1} to {2}'.format(service, line, status[service]), as_user=True)
 
             f = open('/home/spug/xboxone.thespug.net/tmp/last_status', 'w')
-            for service in ('XboxLiveCoreServices', 'PurchaseandContentUsage', 'Website', 'TVMusicandVideo', 'SocialandGaming'):
+            for service in ('XboxLiveCoreServices', 'PurchaseandContentUsage', 'TVMusicandVideo', 'SocialandGaming'):
                 f.write(status[service] + '\n')
 
             f.close()
 
             return 'Success', 200
         else:
-             return 'No Compare Container', 500
+            return 'No Compare Container', 500
     except praw.errors.RateLimitExceeded:
         return 'Rate Limit', 500
     except praw.errors.InvalidUserPass:
