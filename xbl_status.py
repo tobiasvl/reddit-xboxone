@@ -2,7 +2,7 @@ from HTMLParser import HTMLParser
 from bs4 import BeautifulSoup
 from flask import Flask
 from datetime import datetime
-import urllib
+import urllib2
 import praw
 import re
 from slackclient import SlackClient
@@ -126,7 +126,9 @@ def getXBLStatus():
 
 def getHTMLSoup():
     # Download the HTML source of the status page
-    htmlDownloader = urllib.urlopen(settings['xbox_status_url'])
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0')]
+    htmlDownloader = opener.open(settings['xbox_status_url'])
     htmlSource = htmlDownloader.read()
     htmlDownloader.close()
     return BeautifulSoup(htmlSource)
