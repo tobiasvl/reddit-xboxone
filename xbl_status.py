@@ -36,6 +36,7 @@ settings = {
 
 app = Flask(__name__)
 app.config['DEBUG'] = settings['debug']
+app.debug = settings['debug']
 
 @app.route("/xbox/update-sidebar")
 @app.route("/update-sidebar")
